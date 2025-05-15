@@ -73,7 +73,7 @@ This will cause the Operator to provision a new Topic in the Kafka cluster.
 
 Back on the {{ CONSOLE_URL }}/topology/ns/{{ USER_ID }}-project[Topology View^], make sure all the Kafka and Zookeeper pods are up and running (with dark blue circles):
 
-image::kafkaup.png[topiccreate,800]
+image::kafkaup.png[kafkaup,800]
 
 It may take a few minutes for all of the pods to appear spin up. You can continue to the next step while the Kafka cluster and topics are created.
 
