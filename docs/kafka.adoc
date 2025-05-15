@@ -1,12 +1,12 @@
-= RAMALHO Reactive Streams with Quarkus and Kafka 
+= Reactive Streams with Quarkus and Kafka 
 :experimental:
 :imagesdir: images
 
 Alright! In this exercise, you will use the Quarkus Kafka extension to build a streaming application using MicroProfile Reactive Streams Messaging and https://kafka.apache.org[Apache Kafka^], a distributed streaming platform. You will also use https://www.redhat.com/en/resources/amq-streams-datasheet[Red Hat AMQ streams^], which provides an easy way to run an Apache Kafka cluster on Kubernetes and OpenShift using https://operatorhub.io/what-is-an-operator[Operators^].
 
-== What is Apache Kafka? RAMALO
+== What is Apache Kafka?
 
-RAMALHO Apache Kafka is a distributed streaming platform. A streaming platform has three key capabilities:
+Apache Kafka is a distributed streaming platform. A streaming platform has three key capabilities:
 
 * Publish and subscribe to streams of records, similar to a message queue or enterprise messaging system.
 * Store streams of records in a fault-tolerant durable way.
@@ -38,6 +38,21 @@ In this exercise, we are going to generate (random) names in one component. Thes
 
 image::names.png[names,800]
 
+=== Customizing the Developer Perspective in OpenShift
+
+To better observe what’s happening in your OpenShift project, let's customize your side menu by adding a few useful shortcuts.
+
+* Click on `Search` in the left-hand side menu.
+* Search for `Kafka`.
+* Click on *Add to Navigation*.
+* Repeat the same process for the following resources: `KafkaTopic` and `Pod`.
+
+image::ocp-navigation-01.png[ocp-navigation,800]
+
+After adding all the items, your navigation menu should now look like this:
+
+image::ocp-navigation-02.png[ocp-navigation2,800]
+
 === Create Kafka Cluster
 
 The Strimzi operator installs and manages Kafka clusters on Kubernetes. It's been pre-installed for you, so all you have to do is create a Kafka cluster inside your namespace.
@@ -46,11 +61,21 @@ First, on the {{ CONSOLE_URL }}/topology/ns/{{ USER_ID }}-project[Topology View^
 
 image::fromcat-kafka.png[names,800]
 
-These are all of the Kafka cluster elements you can install. Select **Create**. This will open a yaml file for you to configure the cluster before it's installed. Change the name of the cluster from `my-cluster` to `names-cluster` (under the _metadata_ section of the YAML file). Leave all other values as-is, and select **Create**:
+These are all of the Kafka cluster elements you can install. Select **Create**. This opens a YAML editor allowing you to configure the cluster before deploying it. Change the name of the cluster from `my-cluster` to `names-cluster` (under the _metadata_ section of the YAML file). Leave all other values as-is, and select **Create**:
 
 image::createkafka.png[createkafka,800]
 
 This will create a new Kafka Kubernetes object in your namespace, triggering the Operator to deploy Kafka.
+
+To see the Kafka Cluster being created, just select the `Pods` option that we just added to the Openshift side menu. The object being created are names-cluster-kafka-X and names-cluster-zookeeper-X. 
+
+image::kafka-creation.png[kafkacreation,800]
+
+Back on the {{ CONSOLE_URL }}/topology/ns/{{ USER_ID }}-project[Topology View^], make sure all the Kafka and Zookeeper pods are up and running (with dark blue circles):
+
+image::kafkaup.png[kafkaup,800]
+
+It may take a few minutes for all of the pods to appear spin up. You can continue to the next step while the Kafka cluster and topics are created.
 
 == Create Kafka Topic
 
@@ -71,11 +96,8 @@ image::topiccreate.png[topiccreate,800]
 
 This will cause the Operator to provision a new Topic in the Kafka cluster.
 
-Back on the {{ CONSOLE_URL }}/topology/ns/{{ USER_ID }}-project[Topology View^], make sure all the Kafka and Zookeeper pods are up and running (with dark blue circles):
+Click on the `Topics` section in the OpenShift side menu and see if the topic named `names` was created. 
 
-image::kafkaup.png[kafkaup,800]
-
-It may take a few minutes for all of the pods to appear spin up. You can continue to the next step while the Kafka cluster and topics are created.
 
 == Add Quarkus Kafka Extension
 
@@ -167,7 +189,7 @@ public class NameConverter {
 <2> Indicates that the objects returned by the method are sent to the `my-data-stream` stream
 <3> Indicates that the item are dispatched to all _subscribers_
 
-The process method is called for every Kafka record from the `names` topic (configured in the application configuration). Every result is sent to the my-data-stream in-memory stream.
+The process method is invoked for each message from the Kafka topic `names` (configured in the application configuration). Every result is sent to the my-data-stream in-memory stream.
 
 == Expose to front end
 
@@ -298,7 +320,7 @@ These are the original names streamed through Kafka, altered to add a random hon
 
 == Congratulations!
 
-This guide has shown how you can interact with Kafka using Quarkus. It utilizes MicroProfile Reactive Messaging to build data streaming applications.
+This guide demonstrated how to build a reactive streaming application using Quarkus and Kafka. It utilizes MicroProfile Reactive Messaging to build data streaming applications.
 
 If you want to go further check the documentation of https://smallrye.io/smallrye-reactive-messaging[SmallRye Reactive Messaging^], the implementation used in Quarkus.
 
