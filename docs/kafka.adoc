@@ -98,6 +98,8 @@ This will cause the Operator to provision a new Topic in the Kafka cluster.
 
 Click on the `Topics` section in the OpenShift side menu and see if the topic named `names` was created. 
 
+image::kafkatopics.png[kafkatopics,800]
+
 
 == Add Quarkus Kafka Extension
 
