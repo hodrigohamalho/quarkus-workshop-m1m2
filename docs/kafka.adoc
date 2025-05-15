@@ -1,12 +1,12 @@
-= Reactive Streams with Quarkus and Kafka
+= RAMALHO Reactive Streams with Quarkus and Kafka 
 :experimental:
 :imagesdir: images
 
 Alright! In this exercise, you will use the Quarkus Kafka extension to build a streaming application using MicroProfile Reactive Streams Messaging and https://kafka.apache.org[Apache Kafka^], a distributed streaming platform. You will also use https://www.redhat.com/en/resources/amq-streams-datasheet[Red Hat AMQ streams^], which provides an easy way to run an Apache Kafka cluster on Kubernetes and OpenShift using https://operatorhub.io/what-is-an-operator[Operators^].
 
-== What is Apache Kafka?
+== What is Apache Kafka? RAMALO
 
-Apache Kafka is a distributed streaming platform. A streaming platform has three key capabilities:
+RAMALHO Apache Kafka is a distributed streaming platform. A streaming platform has three key capabilities:
 
 * Publish and subscribe to streams of records, similar to a message queue or enterprise messaging system.
 * Store streams of records in a fault-tolerant durable way.
