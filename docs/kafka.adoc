@@ -53,7 +53,7 @@ After adding all the items, your navigation menu should now look like this:
 
 image::ocp-navigation-02.png[ocp-navigation2,800]
 
-=== Create Kafka Cluster
+== Create Kafka Cluster
 
 The Strimzi operator installs and manages Kafka clusters on Kubernetes. It's been pre-installed for you, so all you have to do is create a Kafka cluster inside your namespace.
 
@@ -76,6 +76,21 @@ Back on the {{ CONSOLE_URL }}/topology/ns/{{ USER_ID }}-project[Topology View^],
 image::kafkaup.png[kafkaup,800]
 
 It may take a few minutes for all of the pods to appear spin up. You can continue to the next step while the Kafka cluster and topics are created.
+
+== Create Kafka Console UI
+
+You can choose your preferred Kafka UI to visualize things as read-only. 
+
+In this example we are going to deploy a Kafka UI. 
+
+oc project {{ USER_ID }}-project
+oc create -f https://raw.githubusercontent.com/hodrigohamalho/quarkus-workshop-m1m2/refs/heads/ocp-4.15/files/kafka-ui.yml
+
+ALERT: This route isn't HTTPS, use HTTP. 
+
+After that, return to the Topology View and see if you can access the Kafka UI Console. 
+
+image::kafka-ui.png[kafkaui,800]
 
 == Create Kafka Topic
 
@@ -326,3 +341,75 @@ This guide demonstrated how to build a reactive streaming application using Quar
 
 If you want to go further check the documentation of https://smallrye.io/smallrye-reactive-messaging[SmallRye Reactive Messaging^], the implementation used in Quarkus.
 
+== Producers and Consumers
+
+You may have noticed that our application both **produces** and **consumes** events, acting simultaneously as a **Producer** and a **Consumer** in Kafka.
+
+Let's review some important parameters that can help us tune Kafka producers and consumers for better performance and reliability.
+
+=== Producer Parameters
+
+- `acks=all`: Ensures the strongest delivery guarantee (all brokers must acknowledge).
+- `retries`: Number of retry attempts on failure.
+- `compression.type`: Network optimization using `snappy`, `gzip`, or `lz4`.
+- `linger.ms`: Time to wait before sending a batch of messages (improves throughput).
+- `batch.size`: Maximum size in bytes of a batch of messages.
+- `buffer.memory`: Total memory available to the producer for buffering.
+
+These can be applied in the `application.properties` file as follows:
+
+[source,properties,role="copypaste"]
+----
+mp.messaging.outgoing.meu-topico-out.connector=smallrye-kafka
+mp.messaging.outgoing.meu-topico-out.topic=meu-topico
+mp.messaging.outgoing.meu-topico-out.value.serializer=org.apache.kafka.common.serialization.StringSerializer
+mp.messaging.outgoing.meu-topico-out.acks=all
+
+mp.messaging.outgoing.meu-topico-out.retries=5
+mp.messaging.outgoing.meu-topico-out.compression.type=snappy
+mp.messaging.outgoing.meu-topico-out.linger.ms=10
+mp.messaging.outgoing.meu-topico-out.batch.size=32768
+mp.messaging.outgoing.meu-topico-out.buffer.memory=67108864
+----
+
+=== Consumer Parameters
+
+- `auto.offset.reset`: Determines where to start reading when no committed offset is found.
+- `enable.auto.commit`: Disables automatic offset commit to allow manual control.
+- `fetch.min.bytes` and `fetch.max.wait.ms`: Control how much data is fetched per poll.
+- `max.partition.fetch.bytes`: Maximum data size fetched per partition.
+- `max.poll.records`: Maximum number of records fetched per poll.
+- `session.timeout.ms` and `heartbeat.interval.ms`: Control consumer liveness in the group.
+
+[source,properties,role="copypaste"]
+----
+mp.messaging.incoming.meu-topico.connector=smallrye-kafka
+mp.messaging.incoming.meu-topico.topic=meu-topico
+mp.messaging.incoming.meu-topico.value.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+mp.messaging.incoming.meu-topico.group.id=grupo-consumidor-1
+
+mp.messaging.incoming.meu-topico.auto.offset.reset=earliest
+mp.messaging.incoming.meu-topico.enable.auto.commit=false
+mp.messaging.incoming.meu-topico.fetch.min.bytes=50000
+mp.messaging.incoming.meu-topico.fetch.max.wait.ms=500
+mp.messaging.incoming.meu-topico.max.partition.fetch.bytes=1048576
+mp.messaging.incoming.meu-topico.max.poll.records=100
+mp.messaging.incoming.meu-topico.session.timeout.ms=15000
+mp.messaging.incoming.meu-topico.heartbeat.interval.ms=5000
+----
+
+This configuration provides a good balance between performance, reliability, and efficiency for most Quarkus Kafka applications. These parameters should be further tuned based on your workload and latency requirements.
+
+=== Hands-On Instructions
+
+In this section, we will observe producer and consumer behavior in action.
+
+. Print messages when producing and consuming events in the Quarkus application.
+. Set `auto.offset.reset=earliest` in `application.properties` for the consumer.
+. Deploy the application on OpenShift.
+. Once deployed, scale the application to **two replicas**.
+. Watch the logs in each replica to observe event consumption.
+. Now, update the `group.id` parameter to `lab` and keep `auto.offset.reset=earliest`.
+. Redeploy the application and check the logs again.
+
+If everything is working correctly, you should see **parallel consumers** processing events independently across replicas.
