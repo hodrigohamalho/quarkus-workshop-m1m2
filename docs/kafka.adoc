@@ -398,6 +398,9 @@ mp.messaging.incoming.meu-topico.session.timeout.ms=15000
 mp.messaging.incoming.meu-topico.heartbeat.interval.ms=5000
 ----
 
+Quarkus generates a UUID that changes between two executions (including in dev mode). So, you are sure no other consumer uses it, and you receive a new unique group id every time your application starts.
+
+
 This configuration provides a good balance between performance, reliability, and efficiency for most Quarkus Kafka applications. These parameters should be further tuned based on your workload and latency requirements.
 
 === Hands-On Instructions
@@ -405,7 +408,7 @@ This configuration provides a good balance between performance, reliability, and
 In this section, we will observe producer and consumer behavior in action.
 
 . Print messages when producing and consuming events in the Quarkus application.
-. Set `auto.offset.reset=earliest` in `application.properties` for the consumer.
+. Set `auto.offset.reset=earliest` and `group.id=${quarkus.uuid}` in the `application.properties` for the consumer.
 . Deploy the application on OpenShift.
 . Once deployed, scale the application to **two replicas**.
 . Watch the logs in each replica to observe event consumption.
@@ -413,3 +416,7 @@ In this section, we will observe producer and consumer behavior in action.
 . Redeploy the application and check the logs again.
 
 If everything is working correctly, you should see **parallel consumers** processing events independently across replicas.
+
+
+Want more information with more examples? https://quarkus.io/guides/kafka
+
